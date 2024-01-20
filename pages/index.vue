@@ -79,7 +79,7 @@ import { TRANSACTION_VIEW_OPTIONS } from "~/constants";
 const selectedView = ref(TRANSACTION_VIEW_OPTIONS[1]);
 
 const supabase = useSupabaseClient();
-const transactions = ref([]);
+const transactions = ref();
 const isLoading = ref(false);
 
 const fetchTransactions = async () => {
@@ -89,7 +89,7 @@ const fetchTransactions = async () => {
       "get-transactions",
       async () => await supabase.from("transactions").select()
     );
-    return data.value;
+    return data.value?.data;
   } catch (error) {
     console.log("error", error);
   } finally {

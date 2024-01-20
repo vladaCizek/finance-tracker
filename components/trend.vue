@@ -1,13 +1,13 @@
 <template>
   <div>
     <!-- Title -->
-    <div class="font-bold" :class="[color]">{{ title }}</div>
+    <div class="font-bold">{{ title }}</div>
 
     <!-- Amount -->
     <div class="text-2xl font-extrabold text-black dark:text-white mb-2">
       <USkeleton v-if="loading" class="h-8 w-full" />
-      <div v-else>
-        {{ amount }}
+      <div v-else class="text-gray-500">
+        {{ currency }}
       </div>
     </div>
 
@@ -16,23 +16,47 @@
       <USkeleton v-if="loading" class="h-6 w-full" />
       <div v-else class="flex space-x-1 items-center text-sm">
         <UIcon
-          name="i-heroicons-arrow-trending-up-16-solid"
+          :name="icon"
           dynamic
-          :class="[color]"
+          :class="{ green: trendingUp, red: !trendingUp }"
         />
-        <div class="text-gray-500 dark:text-gray-400">30% vs. last period</div>
+        <div class="text-gray-500 dark:text-gray-400">
+          {{ percentageTrends }}% vs. last period
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   title: String,
   amount: Number,
   lastAmount: Number,
   color: String,
   loading: Boolean,
+});
+
+const trendingUp = computed(() => props.amount > props.lastAmount);
+const icon = computed(() =>
+  trendingUp.value
+    ? "i-heroicons-arrow-trending-up"
+    : "i-heroicons-arrow-trending-down"
+);
+
+const { currency } = useCurrency(props.amount); 
+
+const percentageTrends = computed(() => {
+  if (props.amount === 0 || props.lastAmount === 0) {
+    return "-%";
+  }
+
+  const bigger = Math.max(props.amount, props.lastAmount);
+  const lower = Math.min(props.amount, props.lastAmount);
+
+  const ratio = ((bigger - lower) / lower) * 100;
+
+  return Math.ceil(ratio);
 });
 </script>
 

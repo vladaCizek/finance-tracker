@@ -1,6 +1,6 @@
 <template>
   <header class="flex justify-between items-center mt-10">
-    <NuxtLinkt to="/" class="text-xl font-bold">Finance Tracker</NuxtLinkt>
+    <NuxtLink to="/" class="text-xl font-bold">Finance Tracker</NuxtLink>
     <div>
       <UAvatar
         src="https://avatars.githubusercontent.com/u/739984?v=4"

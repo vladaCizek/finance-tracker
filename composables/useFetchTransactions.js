@@ -1,13 +1,13 @@
-export const useFetchTransactions = () => {
+export const useFetchTransactions = (period) => {
   const supabase = useSupabaseClient();
-  const transactions = ref();
+  const transactions = ref([]);
   const pending = ref(false);
 
   const income = computed(() =>
-    transactions.value.filter((t) => t.type === "Income")
+    (transactions.value ?? []).filter((t) => t.type === "Income")
   );
   const expense = computed(() =>
-    transactions.value.filter((t) => t.type === "Expense")
+    (transactions.value ?? []).filter((t) => t.type === "Expense")
   );
 
   const incomeCount = computed(() => income.value?.length ?? 0);
@@ -25,11 +25,13 @@ export const useFetchTransactions = () => {
     pending.value = true;
     try {
       const { data } = await useAsyncData(
-        "get-transactions",
+        `get-transactions-${period.value.to.toDateString()}`, // key must be always unique
         async () =>
           await supabase
             .from("transactions")
             .select()
+            .gte("created_at", period.value.from.toISOString())
+            .lte("created_at", period.value.to.toISOString())
             .order("created_at", { ascending: false })
       );
       return data.value?.data;

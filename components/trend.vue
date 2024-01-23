@@ -1,12 +1,20 @@
 <template>
   <div>
     <!-- Title -->
-    <div class="font-bold">{{ title }}</div>
+    <div
+      class="font-bold"
+      :class="{
+        'text-green-600': color === 'green',
+        'text-red-600': color === 'red',
+      }"
+    >
+      {{ title }}
+    </div>
 
     <!-- Amount -->
-    <div class="text-2xl font-extrabold text-black dark:text-white mb-2">
+    <div class="text-2xl font-normal text-black dark:text-white mb-2">
       <USkeleton v-if="loading" class="h-8 w-full" />
-      <div v-else class="text-gray-500">
+      <div v-else>
         {{ currency }}
       </div>
     </div>
@@ -37,6 +45,8 @@ const props = defineProps({
   loading: Boolean,
 });
 
+const { amount } = toRefs(props);
+
 const trendingUp = computed(() => props.amount > props.lastAmount);
 const icon = computed(() =>
   trendingUp.value
@@ -44,7 +54,7 @@ const icon = computed(() =>
     : "i-heroicons-arrow-trending-down"
 );
 
-const { currency } = useCurrency(props.amount); 
+const { currency } = useCurrency(amount);
 
 const percentageTrends = computed(() => {
   if (props.amount === 0 || props.lastAmount === 0) {

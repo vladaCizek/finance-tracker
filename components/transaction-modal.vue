@@ -95,7 +95,7 @@ const emit = defineEmits(["update:modelValue", "saved"]);
 
 // Define Supabase client and Toast
 const supabase = useSupabaseClient();
-const toast = useToast();
+const { toastSuccess, toastError } = useAppToast();
 
 // Default base schema
 const defaultSchema = z.object({
@@ -154,9 +154,8 @@ const save = async () => {
 
     if (!error) {
       // Success: toast, close modal and notify parent new transaction was saved
-      toast.add({
+      toastSuccess({
         title: "Transaction saved",
-        icon: "i-heroicons-check-circle",
       });
       isOpen.value = false;
       emit("saved");
@@ -164,11 +163,9 @@ const save = async () => {
       throw error;
     }
   } catch (error) {
-    toast.add({
+    toastError({
       title: "Transaction not saved",
       description: error.message,
-      icon: "i-heroicons-exclamation-circle",
-      color: "red",
     });
   } finally {
     isLoading.value = false;

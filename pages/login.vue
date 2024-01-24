@@ -1,20 +1,74 @@
 <template>
-  <UCard>
+  <UCard v-if="!success">
     <template #header> Sig-in to Finance Tracker </template>
 
-    <form>
+    <form @submit.prevent="handleLogin">
       <UFormGroup
-        label="email"
+        label="Email"
         name="email"
         class="mb-4"
         :required="true"
         help="You will receive an email with the confirmation link"
       >
-        <UInput type="email" placeholder="email" required />
-        <UButton type="submit" variant="solid" color="black">Sign-In</UButton>
+        <UInput type="email" v-model="email" placeholder="email" required />
       </UFormGroup>
+      <UButton
+        type="submit"
+        variant="solid"
+        color="black"
+        :loading="pending"
+        :disabled="pending"
+        >Sign-In</UButton
+      >
     </form>
+  </UCard>
+  <UCard v-else>
+    <template #header>Email has been sent</template>
+    <div class="text-center">
+      <p class="mb-4">
+        We have sent an email to <strong></strong> with a sing in link.
+      </p>
+      <p>
+        <strong>Important:</strong>
+        <span> The link will expire in 5 minutes.</span>
+      </p>
+    </div>
   </UCard>
 </template>
 
-<script setup></script>
+<script setup>
+const success = ref(false);
+const email = ref("");
+const pending = ref(false);
+const toast = useToast();
+const supabase = useSupabaseClient();
+
+useRedirectIfAuthenticated();
+
+const handleLogin = async () => {
+  try {
+    pending.value = true;
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email: email.value,
+      options: {
+        // set this to false if you do not want the user to be automatically signed up
+        shouldCreateUser: false,
+        emailRedirectTo: "http://localhost:3000/confirm",
+      },
+    });
+    if (error) {
+      throw error;
+    }
+    success.value = true;
+  } catch (error) {
+    toast.add({
+      title: "Error authenticating",
+      icon: "i-heroicons-exclamataion-circle",
+      description: error.message,
+      color: "red",
+    });
+  } finally {
+    pending.value = false;
+  }
+};
+</script>

@@ -22,7 +22,7 @@ export const useAppToast = () => {
         title,
         description,
         icon: "i-heroicons-information-circle",
-        color: "yellow",
+        color: "orange",
       });
     },
   };

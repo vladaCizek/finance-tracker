@@ -8,8 +8,10 @@
         v-if="user"
       >
         <UAvatar
-          src="https://avatars.githubusercontent.com/u/739984?v=4"
+          :src="avatarUrl"
           alt="Avatar"
+          class="outline outline-offset-2 outline-2 outline-gray-300"
+          size="sm"
         />
 
         <template #account="{ item }">
@@ -37,6 +39,9 @@
 <script setup>
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
+const { url: avatarUrl } = useAvatarUrl();
+
+console.log(avatarUrl);
 
 const items = [
   [

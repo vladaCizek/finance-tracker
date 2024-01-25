@@ -48,7 +48,7 @@ const props = defineProps({
   type: String,
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "editTransaction"]);
 
 const supabase = useSupabaseClient();
 const { toastSuccess, toastError } = useAppToast();
@@ -79,7 +79,7 @@ const items = [
     {
       label: "Edit",
       icon: "i-heroicons-pencil-square-20-solid",
-      click: () => console.log("edit"),
+      click: () => emit("editTransaction"),
     },
     {
       label: "Delete",

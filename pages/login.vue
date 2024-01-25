@@ -42,6 +42,7 @@ const email = ref("");
 const pending = ref(false);
 const { toastError } = useAppToast();
 const supabase = useSupabaseClient();
+const redirectUrl = useRuntimeConfig().public.baseUrl;
 
 useRedirectIfAuthenticated();
 
@@ -53,7 +54,7 @@ const handleLogin = async () => {
       options: {
         // set this to false if you do not want the user to be automatically signed up
         shouldCreateUser: false,
-        emailRedirectTo: "http://localhost:3000/confirm",
+        emailRedirectTo: `${redirectUrl}/confirm`,
       },
     });
     if (error) {

@@ -6,7 +6,10 @@
         divide: 'divide-y divide-gray-100 dark:divide-gray-800',
       }"
     >
-      <template #header> Add Transaction </template>
+      <template #header>
+        <span>{{ isEditing ? "Edit" : "Add" }}</span>
+        <span> Transaction</span>
+      </template>
 
       <UForm
         ref="form"
@@ -22,9 +25,10 @@
           class="mb-4"
         >
           <USelect
-            :options="TRANSACTION_TYPES"
-            placeholder="Select the transaction type"
             v-model="state.type"
+            :options="TRANSACTION_TYPES"
+            :disabled="isEditing"
+            placeholder="Select the transaction type"
           />
         </UFormGroup>
 
@@ -50,7 +54,7 @@
         </UFormGroup>
 
         <UFormGroup label="Description" name="description" class="mb-4">
-          <UInput placeholder="Description" v-model="state.description" />
+          <UTextarea placeholder="Description" v-model="state.description" />
         </UFormGroup>
 
         <UFormGroup
@@ -89,7 +93,13 @@ import {
 
 const props = defineProps({
   modelValue: Boolean,
+  transaction: {
+    type: Object,
+    required: false,
+  },
 });
+
+const isEditing = computed(() => !!props.transaction);
 
 const emit = defineEmits(["update:modelValue", "saved"]);
 
@@ -141,7 +151,6 @@ const save = async () => {
   // form is validated on submit automatically
   // we don't have to trigger the validation manually
   if (form.value.errors.length) {
-    console.warn("errors: ", form.value.errors);
     return;
   }
 
@@ -149,7 +158,10 @@ const save = async () => {
   try {
     const { data, error } = await supabase
       .from("transactions")
-      .upsert({ ...state.value })
+      .upsert({
+        ...state.value,
+        id: props.transaction?.id,
+      })
       .select();
 
     if (!error) {
@@ -172,20 +184,20 @@ const save = async () => {
   }
 };
 
-const initialState = {
-  type: undefined,
-  amount: 0,
-  created_at: undefined,
-  description: undefined,
-  category: undefined,
+const setState = (transaction) => {
+  return {
+    type: transaction?.type ?? undefined,
+    amount: transaction?.amount ?? 0,
+    created_at: transaction?.created_at?.split("T")[0] ?? undefined,
+    description: transaction?.description ?? undefined,
+    category: transaction?.category ?? undefined,
+  };
 };
 
-const state = ref({
-  ...initialState,
-});
+const state = ref(setState(props.transaction));
 
 const resetForm = () => {
-  Object.assign(state.value, initialState); // re initialize the form data
+  Object.assign(state.value, setState(props.transaction)); // re initialize the form data
   form.value.clear(); // clear all errors on the form
 };
 
@@ -197,5 +209,10 @@ const isOpen = computed({
     }
     emit("update:modelValue", value);
   },
+});
+
+watch(props, (value) => {
+  const newValue = setState(props.transaction);
+  state.value = { ...newValue };
 });
 </script>

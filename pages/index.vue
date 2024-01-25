@@ -76,6 +76,7 @@
         v-for="(transaction, i) in transactionOnDay"
         :key="`tt-${i}-${transaction.id}`"
         v-bind="transaction"
+        @editTransaction="() => editTransaction(transaction)"
         @deleted="refresh"
       />
     </div>
@@ -90,12 +91,17 @@
   </section>
 
   <UNotifications />
-  <TransactionModal v-model="isOpen" @saved="refresh" />
+  <TransactionModal
+    v-model="isOpen"
+    :transaction="selectedTransaction"
+    @saved="refresh"
+  />
 </template>
 
 <script setup>
 import { TRANSACTION_VIEW_OPTIONS } from "~/constants";
 const selectedView = ref(TRANSACTION_VIEW_OPTIONS[1]);
+const selectedTransaction = ref();
 
 const { current, previous } = useUseSeletectedTimePeriod(selectedView);
 
@@ -121,6 +127,11 @@ const {
   },
 } = useFetchTransactions(previous);
 
+const editTransaction = (transaction) => {
+  selectedTransaction.value = transaction;
+  isOpen.value = true;
+};
+
 await refreshPrevious();
 
 watch(selectedView, async () => {
@@ -129,4 +140,10 @@ watch(selectedView, async () => {
 });
 
 const isOpen = ref(false);
+
+watch(isOpen, () => {
+  if (!isOpen.value) {
+    selectedTransaction.value = null;
+  }
+});
 </script>

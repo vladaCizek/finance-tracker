@@ -41,8 +41,6 @@ const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const { url: avatarUrl } = useAvatarUrl();
 
-console.log(avatarUrl);
-
 const items = [
   [
     {

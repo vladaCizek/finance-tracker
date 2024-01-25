@@ -46,6 +46,8 @@ const redirectUrl = useRuntimeConfig().public.baseUrl;
 
 useRedirectIfAuthenticated();
 
+console.warn("redirectUrl: ", redirectUrl);
+
 const handleLogin = async () => {
   try {
     pending.value = true;
